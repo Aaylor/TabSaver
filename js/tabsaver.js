@@ -145,7 +145,7 @@ var UI = {
     element: function(id, ul) {
         var li = document.createElement("li");
         var a = document.createElement("a");
-        a.setAttribute("hred", "#");
+        a.setAttribute("href", "#");
         a.setAttribute("id", id);
         a.innerText = id;
 
