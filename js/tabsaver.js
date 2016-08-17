@@ -22,6 +22,15 @@ Array.prototype.upush = function(element, predicat) {
     }
 }
 
+/** [filter] creates an array with every elemet satisfying [predicat]. */
+Array.prototype.filter = function(predicat) {
+    var result = [];
+    for (var i = 0; i < this.length; i++) {
+        if (predicat(this[i]))
+            result.push(this[i]);
+    }
+    return result;
+}
 
 
 /*
@@ -102,15 +111,15 @@ var Saver = {
     storeIdentifier: function(identifier) {
         chrome.storage.sync.get("tabsaver.identifiers", function(items) {
             var ids = items["tabsaver.identifiers"];
-            if (ids == undefined) {
+            if (ids === undefined) {
                 ids = [identifier];
             } else {
                 ids.upush(identifier, function(element) {
                     return element === identifier
                 });
             }
+            chrome.storage.sync.set({ "tabsaver.identifiers" : ids});
         });
-        chrome.storage.sync.set({ "tabsaver.identifiers" : ids});
     },
 
     /** [save] take the tabs array and store it to the chrome synchronized's
@@ -132,6 +141,33 @@ var Saver = {
 
 
 
+/** [Deleter] contains necessary functions to data deletion. */
+var Deleter = {
+
+    /** [removeIdentifier] remove the given [id] from the array of
+        saved identifiers. */
+    removeIdentifier: function(id) {
+        chrome.storage.sync.get("tabsaver.identifiers", function(items) {
+            var ids = items["tabsaver.identifiers"];
+            if (ids === undefined) return;
+            ids = ids.filter(function (i) { return i !== id; });
+            chrome.storage.sync.set({ "tabsaver.identifiers" : ids });
+        });
+    },
+
+    /** [delete] removes the data with identifier [id]. */
+    delete: function(id) {
+        return function() {
+            Deleter.removeIdentifier(id);
+            chrome.storage.sync.remove(id);
+            UI.show();
+        }
+    }
+
+}
+
+
+
 /*
  * UI
  */
@@ -144,14 +180,24 @@ var UI = {
         load the set of tabs. */
     element: function(id, ul) {
         var li = document.createElement("li");
+        var div = document.createElement("div")
         var a = document.createElement("a");
         a.setAttribute("href", "#");
         a.setAttribute("id", id);
         a.innerText = id;
 
-        li.appendChild(a);
+        var deleteid = "del-" + id;
+        var del = document.createElement("span")
+        del.setAttribute("id", deleteid);
+        del.setAttribute("class", "delete-button");
+        del.innerText = "X";
+
+        div.appendChild(a);
+        div.appendChild(del);
+        li.appendChild(div);
         ul.appendChild(li);
         Document.onClick(id, Loader.load(id));
+        Document.onClick(deleteid, Deleter.delete(id));
     },
 
     /** [onChanged] is the callback used when an element change into the
