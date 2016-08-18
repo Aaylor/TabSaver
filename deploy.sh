@@ -7,4 +7,4 @@ test ! type zip >/dev/null 2>&1 || {
 
 FILES=( README.md css deploy.sh img js manifest.json tabsaver.html )
 
-zip tabsaver.zip ${FILES[@]}
+zip -r tabsaver.zip ${FILES[@]}

@@ -4,7 +4,7 @@
     "author": "Loïc Runarvot",
     "name": "TabSaver",
     "description": "Allow to save and load every tabs.",
-    "version": "1.0",
+    "version": "1.0.1",
 
     "icons": {
         "16": "img/tabs16.png",
